@@ -1,0 +1,4 @@
+{
+    "port": 5000,
+    "mongoURL":  "mongodb+srv://root:root@animedb.ugf7w.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+}
