@@ -1,6 +1,9 @@
 const {Router} = require('express')
 const Genre = require('../models/Genre')
+const AnimeGenre = require('../models/AnimeGenre')
 const router = Router()
+
+const PPG_MAX = 50
 
 
 //  api/v1
@@ -61,7 +64,31 @@ router.delete('/genre/:id', async (req,res) => {
 
 router.get('/genres', async (req,res) => {
     try {
-        const genres = await Genre.find({})
+        const {ppg,search,id, from, to} = req.query
+        // const genres = search ?  await Genre.find({name: {"$regex": search, "$options": "i"}}).limit(+ppg || PPG_MAX) : await Genre.find({}).limit(+ppg || PPG_MAX)
+        let isSearch = search ||  false
+        let isFrom = from || false
+        let isTo = to || false
+        let query = {}
+
+        if (isSearch) {
+            query = {
+                name: {"$regex": search, "$options": "i"}
+            }
+        }
+
+        if (isFrom) {
+            query = {
+                ...query,
+                createdAt: isFrom.toString()
+            }
+        }
+
+        console.log(query)
+
+
+        const genres = await Genre.find(query).limit(+ppg || PPG_MAX) 
+
 
         res.status(200).json(genres)
     } catch (e) {
