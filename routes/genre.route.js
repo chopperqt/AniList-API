@@ -45,7 +45,6 @@ router.get('/genre/:id', async (req,res) => {
         res.status(500).json({message: e.message})
     }
 })
-
 router.delete('/genre/:id', async (req,res) => {
     console.log(req.params.id)
 
@@ -61,7 +60,6 @@ router.delete('/genre/:id', async (req,res) => {
     }
 
 })
-
 router.get('/genres', async (req,res) => {
     try {
         const {ppg,search,id, from, to} = req.query
