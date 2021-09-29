@@ -20,7 +20,7 @@ router.post('/genre', async (req, res) => {
 
         await genre.save()
 
-        res.status(201).json({message: 'Жанр создан!'})
+        res.status(201).json(genre)
 
     } catch (e) {
         res.status(500).json({message: e.message})
@@ -65,6 +65,9 @@ router.delete('/genre/:id', async (req,res) => {
 router.get('/genres', async (req,res) => {
     try {
         const {ppg,search,id, from, to} = req.query
+
+        console.log(req.query)
+
         // const genres = search ?  await Genre.find({name: {"$regex": search, "$options": "i"}}).limit(+ppg || PPG_MAX) : await Genre.find({}).limit(+ppg || PPG_MAX)
         let isSearch = search ||  false
         let isFrom = from || false
@@ -84,7 +87,6 @@ router.get('/genres', async (req,res) => {
             }
         }
 
-        console.log(query)
 
 
         const genres = await Genre.find(query).limit(+ppg || PPG_MAX) 
