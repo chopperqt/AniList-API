@@ -6,7 +6,9 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-app.use('/api/v1',  require('./routes/genre.route'))
+
+app.use('/api/v1', require('./routes/genre.route'))
+app.use('/api/v1', require('./routes/producer.route'))
 
 const PORT = config.get('port') || 5000
 
