@@ -37,11 +37,10 @@ router.get('/studio', async (req,res) => {
     try {
         const {per_page, page} = req.query
     
-        const perPage = per_page || 15
+        const perPage = per_page || 1
         const currentPage = page || 1
         const totalPage = await (await Studio.find()).length
 
-        console.log(calculatedPage(currentPage))
 
         const studios = await Studio.find().skip(calculatedPage(currentPage, perPage)).limit(+perPage)
 

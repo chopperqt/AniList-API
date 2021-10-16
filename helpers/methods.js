@@ -1,4 +1,4 @@
-const calculatedPage = (currentPage,perPage) => +currentPage === 1 ? 0 * perPage : +currentPage * perPage
+const calculatedPage = (currentPage,perPage) => +currentPage === 1 ? 0 * perPage : (+currentPage - 1) * perPage
 
 
 module.exports = {
