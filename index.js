@@ -10,6 +10,7 @@ app.use(express.json())
 app.use('/api/v1', require('./routes/genre.route'))
 app.use('/api/v1', require('./routes/producer.route'))
 app.use('/api/v1', require('./routes/studio.route'))
+app.use('/api/v1', require('./routes/translate.route'))
 
 const PORT = config.get('port') || 5000
 
