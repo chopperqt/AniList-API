@@ -2,6 +2,7 @@ const { Router } = require("express");
 const Producer = require("../models/Producer");
 const router = Router();
 const { SAME_INSTANCE, NOTHING_FIND } = require("../helpers/messages");
+const { calculatedPage, makePagination } = require("../helpers/methods");
 
 //  api/v1
 router.post("/producer", async (req, res) => {
@@ -72,11 +73,20 @@ router.get("/producer/:id", async (req, res) => {
   }
 });
 
-router.get("/producers", async (req, res) => {
+router.get("/producer", async (req, res) => {
   try {
-    const producers = await Producer.find({});
+    const {per_page, page} = req.query
 
-    res.status(200).json({ producers });
+    const perPage =per_page || 15
+    const currentPage = page || 1
+    const totalPage = await (await Producer.find()).length
+
+    const producers = await Producer.find({}).skip(calculatedPage(currentPage, perPage)).limit(+perPage);
+
+    res.status(200).json({ 
+      producers,
+      pagination: makePagination(totalPage, currentPage, perPage)
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

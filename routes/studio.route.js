@@ -2,7 +2,7 @@ const { Router } = require('express')
 const { SAME_INSTANCE } = require('../helpers/messages')
 const Studio = require('../models/Studio')
 const router = Router()
-const { calculatedPage } = require('../helpers/methods')
+const { calculatedPage, makePagination } = require('../helpers/methods')
 
 
 router.post('/studio', async (req,res) => {
@@ -37,7 +37,7 @@ router.get('/studio', async (req,res) => {
     try {
         const {per_page, page} = req.query
     
-        const perPage = per_page || 1
+        const perPage = per_page || 15
         const currentPage = page || 1
         const totalPage = await (await Studio.find()).length
 
@@ -46,11 +46,7 @@ router.get('/studio', async (req,res) => {
 
         res.status(200).json({
             studios,
-            pagination: {
-                total_page: Math.ceil(totalPage / perPage),
-                page: +currentPage,
-                per_page: +perPage
-            }
+            pagination: makePagination(totalPage, currentPage, perPage)
         })
 
     } catch (e) {
