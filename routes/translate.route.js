@@ -8,6 +8,16 @@ const {
 const Translate = require("../models/Translate");
 const router = Router();
 
+router.get('/translate/:id', async(req,res) => {
+    try {
+        const { id } = req.params
+        const translate = await Translate.findById({_id: id})
+
+        if (translate) return res.status(200).json({data: translate})
+    } catch (error) {
+        res.status(500).send({error: error.message})
+    }
+});
 router.post("/translate", async (req, res) => {
   try {
     const { name } = req.body;
@@ -25,6 +35,7 @@ router.post("/translate", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 router.delete("/translate/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,6 +47,7 @@ router.delete("/translate/:id", async (req, res) => {
       res.status(500).send({error: error.message})
   }
 });
+
 router.get("/translate", async (req, res) => {
   try {
     const { per_page, page } = req.query;
