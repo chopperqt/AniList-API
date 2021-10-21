@@ -1,6 +1,6 @@
 const { Router } = require('express')
 const { SAME_INSTANCE } = require('../helpers/messages')
-const { calculatedPage, makePagination } = require('../helpers/methods')
+const { calculatedPage, makePagination, findItemInDB } = require('../helpers/methods')
 const Translate = require('../models/Translate')
 const router = Router()
 
@@ -24,13 +24,15 @@ router.post('/translate', async (req,res) => {
 
 router.get('/translate', async (req,res) => {
     try {
-        const {per_page, page} = req.query
+        
+        const {per_page, page,search} = req.query
 
         const perPage = per_page || 15
         const currentPage = page || 1
-        const totalPage = await (await Translate.find()).length
+        const totalPage = search ? await (await Translate.find({name: {"$regex": search, "$options": "i"}})).length : await (await Translate.find({})).length
 
-        const translators = await Translate.find().skip(calculatedPage(currentPage, perPage)).limit(+perPage)
+        
+        const translators = await Translate.find(findItemInDB("name", search)).skip(calculatedPage(currentPage, perPage, totalPage)).limit(+perPage)
 
         res.status(200).json({
             translators,
