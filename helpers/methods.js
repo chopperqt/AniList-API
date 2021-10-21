@@ -5,12 +5,12 @@
  * @returns  Кол-во skip аниме
  */
 const calculatedPage = (currentPage,perPage, totalPage) => {
-    const page = +totalPage >= +currentPage ? totalPage : currentPage
+    // const page = +totalPage >= +currentPage ? totalPage : currentPage
 
-    if (+page === 1) {
+    if (+currentPage === 1) {
         return 0 * perPage
     }
-    return (+page - 1) * perPage
+    return (+currentPage - 1) * perPage
 }
 /**
  *  Метод который собирает правильную пагинацию и возвращает её 
