@@ -4,20 +4,12 @@ const {
   calculatedPage,
   makePagination,
   findItemInDB,
+  makeQuery,
 } = require("../helpers/methods");
 const Translate = require("../models/Translate");
 const router = Router();
 
-router.get('/translate/:id', async(req,res) => {
-    try {
-        const { id } = req.params
-        const translate = await Translate.findById({_id: id})
 
-        if (translate) return res.status(200).json({data: translate})
-    } catch (error) {
-        res.status(500).send({error: error.message})
-    }
-});
 router.post("/translate", async (req, res) => {
   try {
     const { name } = req.body;
@@ -35,7 +27,16 @@ router.post("/translate", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/translate/:id', async(req,res) => {
+    try {
+        const { id } = req.params
+        const translate = await Translate.findById({_id: id})
 
+        if (translate) return res.status(200).json({data: translate})
+    } catch (error) {
+        res.status(500).send({error: error.message})
+    }
+});
 router.delete("/translate/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -47,16 +48,16 @@ router.delete("/translate/:id", async (req, res) => {
       res.status(500).send({error: error.message})
   }
 });
-
 router.get("/translate", async (req, res) => {
   try {
-    const { per_page, page } = req.query;
+    const { per_page, page, search, from, to } = req.query;
 
     const perPage = per_page || 15;
     const currentPage = page || 1;
-    const totalPage = await (await Translate.find({})).length
+    const totalPage = await (await Translate.find(makeQuery({field: 'name', value: search}, from, to))).length
 
-    const translators = await Translate.find().skip(calculatedPage(currentPage, perPage, totalPage)).limit(+perPage);
+
+    const translators = await Translate.find(makeQuery({field: 'name', value: search}, from,to))
 
     res.status(200).json({
       data: translators,
