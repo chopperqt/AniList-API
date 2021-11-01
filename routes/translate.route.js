@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { DEFAULT_PER_PAGE, DEFAULT_PAGE } = require("../helpers/constants");
 const { SAME_INSTANCE } = require("../helpers/messages");
 const {
   calculatedPage,
@@ -52,12 +53,12 @@ router.get("/translate", async (req, res) => {
   try {
     const { per_page, page, search, from, to } = req.query;
 
-    const perPage = per_page || 15;
-    const currentPage = page || 1;
+    const perPage = per_page || DEFAULT_PER_PAGE;
+    const currentPage = page || DEFAULT_PAGE;
+
+    
     const totalPage = await (await Translate.find(makeQuery({field: 'name', value: search}, from, to))).length
-
-
-    const translators = await Translate.find(makeQuery({field: 'name', value: search}, from,to))
+    const translators = await Translate.find(makeQuery({field: 'name', value: search}, from,to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
 
     res.status(200).json({
       data: translators,
