@@ -2,7 +2,8 @@ const { Router } = require('express')
 const { SAME_INSTANCE } = require('../helpers/messages')
 const Studio = require('../models/Studio')
 const router = Router()
-const { calculatedPage, makePagination } = require('../helpers/methods')
+const { calculatedPage, makePagination, makeQuery } = require('../helpers/methods')
+const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../helpers/constants')
 
 
 router.post('/studio', async (req,res) => {
@@ -35,17 +36,14 @@ router.get('/studio/:id', async(req,res) => {
 })
 router.get('/studio', async (req,res) => {
     try {
-        const {per_page, page} = req.query
-    
-        const perPage = per_page || 15
-        const currentPage = page || 1
-        const totalPage = await (await Studio.find()).length
-
-
-        const studios = await Studio.find().skip(calculatedPage(currentPage, perPage)).limit(+perPage)
-
+        const {per_page, page, search, from, to} = req.query
+        const perPage = per_page || DEFAULT_PER_PAGE
+        const currentPage = page || DEFAULT_PAGE
+        const totalPage = await (await Studio.find(makeQuery({field: 'name', value: search}, from, to))).length
+        const studios = await Studio.find(makeQuery({field: 'name', value: search}, from,to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
+        
         res.status(200).json({
-            studios,
+            data: studios,
             pagination: makePagination(totalPage, currentPage, perPage)
         })
 

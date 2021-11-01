@@ -55,8 +55,6 @@ router.get("/translate", async (req, res) => {
 
     const perPage = per_page || DEFAULT_PER_PAGE;
     const currentPage = page || DEFAULT_PAGE;
-
-    
     const totalPage = await (await Translate.find(makeQuery({field: 'name', value: search}, from, to))).length
     const translators = await Translate.find(makeQuery({field: 'name', value: search}, from,to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
 

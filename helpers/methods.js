@@ -42,9 +42,12 @@ const findItemInDB = (searchField, value) => {
  * @returns  Запрос для базы данных
  */
 const makeQuery = (search, from, to) => {
+    console.log(search)
+
     if (search?.field && search?.value && from && to) return {[search.field]: {"$regex": search.value, "$options": "i"}, createdAt: {"$gte": from, "$lt": to}}
     if (search?.field && search?.value && from) return {[search.field]: {"$regex": search.value, "$options": "i"}, createdAt: {"$gte": from}}
     if (search?.field && search?.value && to) return {[search.field]: {"$regex": search.value, "$options": "i"}, createdAt: {"$lt": to}}
+    if (search?.field && search?.value) return {[search.field]: {"$regex": search.value, "$options": "i"}}
     if (from && to)  return {createdAt: {"$gte": from, "$lt": to}}
     if (from) return {createdAt: {"$gte": from}}
     if (to) return {createdAt: {"$gte": from}}
