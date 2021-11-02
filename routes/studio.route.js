@@ -27,6 +27,17 @@ router.post("/studio", async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 });
+router.put("/studio/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    const studio = await Studio.findByIdAndUpdate(id, { name }, { new: true });
+
+    res.status(200).json(studio)
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 router.get("/studio/:id", async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.id);
@@ -39,11 +50,11 @@ router.get("/studio/:id", async (req, res) => {
 router.delete("/studio/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const studio = await Studio.findByIdAndDelete(id)
+    const studio = await Studio.findByIdAndDelete(id);
 
-    if (studio) res.status(200).send({data: studio})
+    if (studio) res.status(200).send({ data: studio });
   } catch (error) {
-      res.status(500).send({error: error.message})
+    res.status(500).send({ error: error.message });
   }
 });
 router.get("/studio", async (req, res) => {
