@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { DEFAULT_PER_PAGE, DEFAULT_PAGE } = require("../helpers/constants");
-const { SAME_INSTANCE } = require("../helpers/messages");
+const { SAME_INSTANCE, NOTHING_FIND } = require("../helpers/messages");
 const {
   calculatedPage,
   makePagination,
@@ -9,7 +9,6 @@ const {
 } = require("../helpers/methods");
 const Translate = require("../models/Translate");
 const router = Router();
-
 
 router.post("/translate", async (req, res) => {
   try {
@@ -28,25 +27,35 @@ router.post("/translate", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/translate/:id', async(req,res) => {
-    try {
-        const { id } = req.params
-        const translate = await Translate.findById({_id: id})
+router.put("/translate/:id", async (req, res) => {
+  try {
+    const { id } = req.params
+    const { name } = req.body
+    const translate = await Translate.findByIdAndUpdate(id, { name }, { new: true })
 
-        if (translate) return res.status(200).json({data: translate})
-    } catch (error) {
-        res.status(500).send({error: error.message})
-    }
+    res.status(200).json(translate)
+  } catch (e) {
+    res.status(500).json({message: e.message})
+  }
+});
+router.get("/translate/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const translate = await Translate.findById({ _id: id });
+
+    if (translate) return res.status(200).json({ data: translate });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 router.delete("/translate/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const translate = await Translate.findByIdAndDelete(id);
 
-    const translate = await Translate.findByIdAndDelete(id)
-
-    if (translate) res.status(200).send({data: translate})
+    if (translate) res.status(200).send({ data: translate });
   } catch (error) {
-      res.status(500).send({error: error.message})
+    res.status(500).send({ error: error.message });
   }
 });
 router.get("/translate", async (req, res) => {
@@ -55,8 +64,16 @@ router.get("/translate", async (req, res) => {
 
     const perPage = per_page || DEFAULT_PER_PAGE;
     const currentPage = page || DEFAULT_PAGE;
-    const totalPage = await (await Translate.find(makeQuery({field: 'name', value: search}, from, to))).length
-    const translators = await Translate.find(makeQuery({field: 'name', value: search}, from,to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
+    const totalPage = await (
+      await Translate.find(
+        makeQuery({ field: "name", value: search }, from, to)
+      )
+    ).length;
+    const translators = await Translate.find(
+      makeQuery({ field: "name", value: search }, from, to)
+    )
+      .skip(calculatedPage(currentPage, perPage))
+      .limit(+perPage);
 
     res.status(200).json({
       data: translators,
