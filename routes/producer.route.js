@@ -63,7 +63,7 @@ router.post("/producer", async (req, res) => {
 
     await producer.save();
 
-    res.status(200).json(producer);
+    res.status(200).json({data: producer});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,6 +1,5 @@
 const { Router } = require("express");
 const Genre = require("../models/Genre");
-const AnimeGenre = require("../models/AnimeGenre");
 const { SAME_INSTANCE } = require("../helpers/messages");
 const { DEFAULT_PER_PAGE, DEFAULT_PAGE } = require("../helpers/constants");
 const { makeQuery, calculatedPage, makePagination } = require("../helpers/methods");
@@ -56,17 +55,19 @@ router.post("/genre", async (req, res) => {
 });
 router.get("/genre", async (req, res) => {
   try {
-    const { per_page, page, search, from, to } = req.query;
+    const { per_page, page, search, from, to } = req.query
     const perPage = per_page || DEFAULT_PER_PAGE
     const currentPage = page || DEFAULT_PAGE
-    const totalPage = await (await Genre.find(makeQuery({field: 'name', value: search}, from, to))).length;
+    const totalPage = await (
+      await Genre.find(
+        makeQuery({ field: "name", value: search }, from, to)
+      )
+    ).length;
     const genres = await Genre.find(makeQuery({field: 'name', value: search}, from, to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
 
     res.status(200).json({
       data: genres,
-      pagination: {
-          makePagination(totalPage, currentPage, perPage)
-      },
+      pagination: makePagination(totalPage, currentPage, perPage)
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
