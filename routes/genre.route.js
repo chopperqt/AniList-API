@@ -1,105 +1,76 @@
-const {Router} = require('express')
-const Genre = require('../models/Genre')
-const AnimeGenre = require('../models/AnimeGenre')
-const router = Router()
+const { Router } = require("express");
+const Genre = require("../models/Genre");
+const AnimeGenre = require("../models/AnimeGenre");
+const { SAME_INSTANCE } = require("../helpers/messages");
+const { DEFAULT_PER_PAGE, DEFAULT_PAGE } = require("../helpers/constants");
+const { makeQuery, calculatedPage, makePagination } = require("../helpers/methods");
+const router = Router();
 
-const PPG_MAX = 1000
+const PPG_MAX = 1000;
 
+router.get("/genre/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const genre = await Genre.findById(id);
 
-//  api/v1
-router.post('/genre', async (req, res) => {
-    try {
-        const { name } = req.body
-        const genreFind = await Genre.findOne({name})
-        
-        if (genreFind) {
-            return res.status(400).json({message: 'Такой жанр уже есть!'})
-        }
+    if (genre) return res.status(200).json({ data: genre });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+router.put("/genre/:id", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const { id } = req.params;
+    const genre = await Genre.findByIdAndUpdate(id, { name }, { new: true });
 
-        const genre = new Genre({name})
+    if (genre) return res.status(200).json({ data: genre });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+router.delete("/genre/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const genre = await Genre.findByIdAndDelete(id);
 
-        await genre.save()
+    if (genre) res.status(200).send({ data: genre });
+  } catch (e) {
+    res.status(500).send({ error: error.message });
+  }
+});
+router.post("/genre", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const hasGenre = await Genre.findOne({ name });
+    const genre = new Genre({ name });
 
-        res.status(201).json(genre)
+    if (hasGenre) return res.status(400).json({ message: SAME_INSTANCE });
 
-    } catch (e) {
-        res.status(500).json({message: e.message})
-    }
-})
-router.put('/genre/:id', async (req,res) => {
-    try {
-        const {name} = req.body
-        const genre = await Genre.findByIdAndUpdate(req.params.id, {name}, {new: true})
+    await genre.save();
 
-        res.status(200).json(genre)
-    } catch (e) {
-        res.status(500).json({message: e.message})
-    }
-})
-router.get('/genre/:id', async (req,res) => {
-    try {
-        const genre  = await Genre.findById(req.params.id)
+    res.status(201).json({ data: genre });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+router.get("/genre", async (req, res) => {
+  try {
+    const { per_page, page, search, from, to } = req.query;
+    const perPage = per_page || DEFAULT_PER_PAGE
+    const currentPage = page || DEFAULT_PAGE
+    const totalPage = await (await Genre.find(makeQuery({field: 'name', value: search}, from, to))).length;
+    const genres = await Genre.find(makeQuery({field: 'name', value: search}, from, to)).skip(calculatedPage(currentPage, perPage)).limit(+perPage)
 
-        res.status (200).json(genre)
-    }catch (e) {
-        res.status(500).json({message: e.message})
-    }
-})
-router.delete('/genre/:id', async (req,res) => {
-    try {
-        const total = await Genre.find({})
-        const deleteGenre = await Genre.findByIdAndDelete(req.params.id)
+    res.status(200).json({
+      data: genres,
+      pagination: {
+          makePagination(totalPage, currentPage, perPage)
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
 
-        if (deleteGenre) {
-            res.status(200).send({
-                genre: deleteGenre,
-            })
-        }
-
-    }catch (e) {
-
-    }
-
-})
-router.get('/genres', async (req,res) => {
-    try {
-        const {page,ppg,search,id, from, to} = req.query
-
-        let isSearch = search ||  false
-        let isFrom = from || false
-        let isTo = to || false
-        let query = {}
-
-        if (isSearch) {
-            query = {
-                name: {"$regex": search, "$options": "i"}
-            }
-        }
-
-        if (isFrom) {
-            query = {
-                ...query,
-                createdAt: isFrom.toString()
-            }
-        }
-
-        const total = await (await Genre.find(query)).length
-
-        const genres = await Genre.find(query).skip(page ? page : 0 * (ppg || PPG_MAX)).limit(+ppg || PPG_MAX)
-
-
-        res.status(200).json({
-            genres: genres,
-            pagination: {
-                total,
-                pages: Math.ceil(total / 15)
-            }
-        })
-    } catch (e) {
-        res.status(500).json({message: e.message})
-    }
-})
-
-
-
-module.exports = router
+module.exports = router;

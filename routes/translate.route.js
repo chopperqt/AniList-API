@@ -10,34 +10,6 @@ const {
 const Translate = require("../models/Translate");
 const router = Router();
 
-router.post("/translate", async (req, res) => {
-  try {
-    const { name } = req.body;
-
-    const uniqueTranslate = await Translate.findOne({ name });
-
-    if (uniqueTranslate) return res.status(400).json({ error: SAME_INSTANCE });
-
-    const translate = new Translate({ name });
-
-    await translate.save();
-
-    res.status(200).json(translate);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-router.put("/translate/:id", async (req, res) => {
-  try {
-    const { id } = req.params
-    const { name } = req.body
-    const translate = await Translate.findByIdAndUpdate(id, { name }, { new: true })
-
-    res.status(200).json(translate)
-  } catch (e) {
-    res.status(500).json({message: e.message})
-  }
-});
 router.get("/translate/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,6 +18,17 @@ router.get("/translate/:id", async (req, res) => {
     if (translate) return res.status(200).json({ data: translate });
   } catch (error) {
     res.status(500).send({ error: error.message });
+  }
+});
+router.put("/translate/:id", async (req, res) => {
+  try {
+    const { id } = req.params
+    const { name } = req.body
+    const translate = await Translate.findByIdAndUpdate(id, { name }, { new: true })
+
+    if (translate) return res.status(200).json({data: translate})
+  } catch (e) {
+    res.status(500).json({message: e.message})
   }
 });
 router.delete("/translate/:id", async (req, res) => {
@@ -58,10 +41,24 @@ router.delete("/translate/:id", async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+router.post("/translate", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const hasTranslate = await Translate.findOne({ name });
+    const translate = new Translate({ name });
+
+    if (hasTranslate) return res.status(400).json({ message: SAME_INSTANCE });
+
+    await translate.save();
+
+    res.status(200).json({data: translate});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 router.get("/translate", async (req, res) => {
   try {
     const { per_page, page, search, from, to } = req.query;
-
     const perPage = per_page || DEFAULT_PER_PAGE;
     const currentPage = page || DEFAULT_PAGE;
     const totalPage = await (
