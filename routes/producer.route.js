@@ -70,12 +70,11 @@ router.post("/producer", async (req, res) => {
 });
 router.get("/producer", async (req, res) => {
   try {
-    const { per_page, page } = req.query;
+    const { per_page, page, search, from, to } = req.query;
 
     const perPage = per_page || 15;
     const currentPage = page || 1;
     const totalPage = await (await Producer.find()).length;
-
     const producers = await Producer.find({})
       .skip(calculatedPage(currentPage, perPage))
       .limit(+perPage);

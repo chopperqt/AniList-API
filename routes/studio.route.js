@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { SAME_INSTANCE } = require("../helpers/messages");
+const { SAME_INSTANCE, SAME_STUDIO_INSTANCE } = require("../helpers/messages");
 const Studio = require("../models/Studio");
 const router = Router();
 const {
@@ -9,7 +9,19 @@ const {
 } = require("../helpers/methods");
 const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require("../helpers/constants");
 
+router.post("/studio/validation", async (req, res) => {
+  try {
+    const { name } = req.body;
+    var regex = new RegExp(["^", name, "$"].join(""), "i");
 
+    const studio = await Studio.findOne({ name: regex});
+
+    if (studio) return res.status(200).json({ message: SAME_STUDIO_INSTANCE });
+    return res.status(200).json({});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 router.get("/studio/:id", async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.id);
@@ -25,7 +37,7 @@ router.put("/studio/:id", async (req, res) => {
     const { name } = req.body;
     const studio = await Studio.findByIdAndUpdate(id, { name }, { new: true });
 
-    res.status(200).json(studio)
+    res.status(200).json(studio);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -53,7 +65,7 @@ router.post("/studio", async (req, res) => {
 
     await studio.save();
 
-    res.status(201).json(studio);
+    res.status(201).json({ data: studio });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

@@ -53,10 +53,19 @@ const makeQuery = (search, from, to) => {
     if (to) return {createdAt: {"$gte": from}}
     return {}  
 }
+/**
+ *  Метод возвращает регулярное выражение которое не чувствительностьно к регистру
+ * @param {String}  String -  Строка которая будет вставлена в регулярное выражение
+ * @returns  Регулярное выражение
+ */
+const makeReq = (string) => {
+    return new RegExp(["^", string, "$"].join(""), "i");
+}
 
 module.exports = {
     calculatedPage,
     makePagination,
     findItemInDB,
     makeQuery,
+    makeReq,
 }
