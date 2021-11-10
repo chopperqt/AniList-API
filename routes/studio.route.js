@@ -1,20 +1,16 @@
-const { Router } = require("express");
-const { SAME_INSTANCE, SAME_STUDIO_INSTANCE } = require("../helpers/messages");
-const Studio = require("../models/Studio");
+const { Router } = require('express');
+const { SAME_INSTANCE, SAME_STUDIO_INSTANCE } = require('../helpers/messages');
+const Studio = require('../models/Studio');
 const router = Router();
-const {
-  calculatedPage,
-  makePagination,
-  makeQuery,
-} = require("../helpers/methods");
-const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require("../helpers/constants");
+const { calculatedPage, makePagination, makeQuery } = require('../helpers/methods');
+const { DEFAULT_PAGE, DEFAULT_PER_PAGE } = require('../helpers/constants');
 
-router.post("/studio/validation", async (req, res) => {
+router.post('/studio/validation', async (req, res) => {
   try {
     const { name } = req.body;
-    var regex = new RegExp(["^", name, "$"].join(""), "i");
+    var regex = new RegExp(['^', name, '$'].join(''), 'i');
 
-    const studio = await Studio.findOne({ name: regex});
+    const studio = await Studio.findOne({ name: regex });
 
     if (studio) return res.status(200).json({ message: SAME_STUDIO_INSTANCE });
     return res.status(200).json({});
@@ -22,7 +18,7 @@ router.post("/studio/validation", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get("/studio/:id", async (req, res) => {
+router.get('/studio/:id', async (req, res) => {
   try {
     const studio = await Studio.findById(req.params.id);
 
@@ -31,7 +27,7 @@ router.get("/studio/:id", async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 });
-router.put("/studio/:id", async (req, res) => {
+router.put('/studio/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -42,7 +38,7 @@ router.put("/studio/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-router.delete("/studio/:id", async (req, res) => {
+router.delete('/studio/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const studio = await Studio.findByIdAndDelete(id);
@@ -52,7 +48,7 @@ router.delete("/studio/:id", async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
-router.post("/studio", async (req, res) => {
+router.post('/studio', async (req, res) => {
   try {
     const { name } = req.body;
     const studioFInd = await Studio.findOne({ name });
@@ -70,17 +66,15 @@ router.post("/studio", async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 });
-router.get("/studio", async (req, res) => {
+router.get('/studio', async (req, res) => {
   try {
     const { per_page, page, search, from, to } = req.query;
     const perPage = per_page || DEFAULT_PER_PAGE;
     const currentPage = page || DEFAULT_PAGE;
     const totalPage = await (
-      await Studio.find(makeQuery({ field: "name", value: search }, from, to))
+      await Studio.find(makeQuery({ field: 'name', value: search }, from, to))
     ).length;
-    const studios = await Studio.find(
-      makeQuery({ field: "name", value: search }, from, to)
-    )
+    const studios = await Studio.find(makeQuery({ field: 'name', value: search }, from, to))
       .skip(calculatedPage(currentPage, perPage))
       .limit(+perPage);
 
